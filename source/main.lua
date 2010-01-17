@@ -1,16 +1,25 @@
 --includes
-	require("inc/tablePersistence.lua")
+textGlobal = ''
 	require("inc/AnAL.lua")
-	
+	require("inc/LUBE.lua")
+	require("inc/tablePersistence.lua")
+
+
 --Globals 
+	infoPack = {}		
+	client = {}
+	networking = {}
+	networking.gotServer = false
+	networking.text = ''
+	
 	
 	platforms = {}
-	
+
 	objects = {
 		player = {spriteNorm = "img/objects/turnipMan.gif", spriteRev = "img/objects/turnipManRev.gif", placeholder = "img/objects/player.png", placeholderAlpha = "img/objects/playerAlpha.png", x = 0, y = 0, startPlaced = false, startDirection = "right"},
 	}
 	
-	object	 = {}
+	objectFunc	 = {}
 	
 	objectList = {
 		potato = {img = "img/objects/potato.png", width = love.graphics.newImage("img/objects/potato.png"):getWidth(), height = love.graphics.newImage("img/objects/potato.png"):getHeight(), },
@@ -24,7 +33,13 @@
 	
 	level = {}
 	
-	player = {}
+	player = { 
+		jumpVar = 0, 
+		stepDistance = 2.5, 
+		jumping = false,
+		width = 45,
+		height = 47
+	}
 		
 	colours = {
 		black = {r = 0 , g = 0 , b = 0 , a = 255},
@@ -40,6 +55,8 @@
 	game = {
 		paused = false,
 		menu = "wait",
+		jumpHeight = 75,
+		map = false,
 	}
 	
 	global = {}
@@ -64,7 +81,7 @@
 	X = love.mouse.getX()
 
 	Y = love.mouse.getY()
-		used = 0
+	
 	guiObjects = {
 		menuImg = love.graphics.newImage("img/menu/mainMenu.png"),
 		menuButtonsImg = love.graphics.newImage("img/menu/mainMenuButtons.png"),
@@ -79,7 +96,7 @@
 		itemList_platforms = love.graphics.newImage("img/menu/itemList-platforms.png"),
 	}
 
-	okay = {
+	alphaNum = {
 		"a",
 		"period",
 		"b",
@@ -120,6 +137,55 @@
 		"0",
 	}	
 
+	alpha = {
+		"a",
+		"period",
+		"b",
+		"c",
+		"d",
+		"e",
+		"f",
+		"g",
+		"h",
+		"i",
+		"j",
+		"k",
+		"l",
+		"m",
+		"n",
+		"o",
+		"p",
+		"q",
+		"r",
+		"s",
+		"t",
+		"u",
+		"v",
+		"w",
+		"x",
+		"y",
+		"z",
+		"space",
+		".",
+	}	
+
+	num = {
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"0",
+		".",
+	}	
+
+	
+	
+	
 function love.load()
 	love.graphics.setColorMode("replace")
 	font = love.graphics.newFont("fonts/segoesc.ttf", 18)
@@ -154,7 +220,9 @@ end
 
 function love.update(dt)
 
-	
+	if client.object then
+		networking.updateClient(dt)
+	end
 
 	
 	if not (game.paused) and game.menu == game.playing then
@@ -170,9 +238,12 @@ function love.update(dt)
 end
 
 function love.keyreleased( key ) 
+if client.object then
+	client.object:setCallback(rcvCallback)
+	end
 	system.newPress.keyboard = 0
 	if key == "backspace" and system.debug then
-		love.system.restart( )
+		--love.restart( )
 	end
 end 
 
@@ -217,13 +288,12 @@ end
 						--[[ 	Player functions (walk, gravity, death, etc.)     ]]--
 
 player.run = function()
-	player.gravity()
+	--player.gravity()
 	player.walk()
-	player.sprite:update(0.017)	
+	player.sprite:update(0.02)	
 	player.draw()
-
-	
-	
+	player.jump()
+	player.gravity()
 end
 
 player.draw = function()
@@ -251,46 +321,81 @@ player.walk = function(key)
 	
 --Left bounding bar
 	left = {}
-	left.X = x + 10
-	left.Y = y
-	left.Width = 3
-	left.Height = height - 5
+	left.x = x + 10
+	left.y = y
+	left.width = 3
+	left.height = height - 1.5
 	
 --Right bounding bar
 	right = {}
-	right.X = (x + width)-10
-	right.Y = y
-	right.Width = 3
-	right.Height = height - 5
+	right.x = (x + width)-10
+	right.y = y
+	right.width = 3
+	right.height = height - 5
 
+	
+--Upper bounding Bar
+	up = {}
+	up.height = 1
+	up.width = 20
+	up.x = objects.player.x - player.width/4
+	up.y = objects.player.y - (player.height/2)-up.height
+	
 	for k,v in pairs(platforms) do
-		if (left.X  < v.x+v.width and left.X +left.Width > v.x and y < v.y+v.height and left.Y+left.Height > v.y) then
+
+		
+		if rectOverlap(left, v) then
 			checkLeft = true
 			if system.debug then
-				love.graphics.rectangle("fill", left.X, left.Y, left.Width, left.Height)
+				love.graphics.rectangle("fill", left.x, left.y, left.width, left.height)
+				love.graphics.setColor(123,321,222)
+				love.graphics.rectangle("fill", v.x, v.y, v.width, v.height)
+				love.graphics.setColor(0,0,0)
 			end
-			
-		elseif  (right.X  < v.x+v.width and right.X +right.Width > v.x and y < v.y+v.height and right.Y+right.Height > v.y) then
+		end
+		
+		if  rectOverlap(right, v) then
 			checkRight = true
 			if system.debug then
-				love.graphics.rectangle("fill", right.X, right.Y, right.Width, right.Height)
+				love.graphics.rectangle("fill", right.x, right.y, right.width, right.height)
+				love.graphics.setColor(123,321,222)
+				love.graphics.rectangle("fill", v.x, v.y, v.width, v.height)
+				love.graphics.setColor(0,0,0)
 			end
-		end	
+		end
+		
+		if  rectOverlap(up, v) then
+			player.jumpVar = 0
+			if system.debug then
+				love.graphics.rectangle("fill", up.x, up.y, up.width, up.height)
+				love.graphics.setColor(123,321,222)
+				love.graphics.rectangle("fill", v.x, v.y, v.width, v.height)
+				love.graphics.setColor(0,0,0)
+			end
+		end		
+		
 		
 	end
 
-	if love.keyboard.isDown( "right" ) and not checkRight then
-		player.sprite:play()
+	if love.keyboard.isDown( "left" )  then
+			player.sprite = player.spriteIndex["left"]
+		if not checkLeft then
+			player.sprite:play()
+			objects.player.x = objects.player.x -  player.stepDistance
+		end
+	end
+	if love.keyboard.isDown( "right" )   then
 		player.sprite = player.spriteIndex["right"]
-		objects.player.x = objects.player.x + 2.5
+		if not checkRight then
+			player.sprite:play()
+			objects.player.x = objects.player.x + player.stepDistance
+		end
 	end
-	if love.keyboard.isDown( "left" ) and not checkLeft then
-		player.sprite:play()
-		player.sprite = player.spriteIndex["left"]
-		objects.player.x = objects.player.x - 2.5
-	end
-	if love.keyboard.isDown( "left" ) == "up" then	
-		player.jump(key)
+	if love.keyboard.isDown( "up" ) then	
+		if player.jumpVar == 0 and not(player.jumping) then
+			player.jumpVar = game.jumpHeight
+			player.jumping = true
+		end
 	end
 	if not love.keyboard.isDown( "right" ) and not love.keyboard.isDown( "left" ) and not love.keyboard.isDown( "up" ) then
 		player.sprite:stop()
@@ -300,20 +405,32 @@ player.walk = function(key)
 end
 
 player.jump = function(key)
-
+	if player.jumpVar > 0 then
+		objects.player.y = objects.player.y - 10;
+		player.jumpVar = player.jumpVar - 5;
+	end
 end
 
 player.gravity = function()
-	height = 50
-	width = 22
-	x = objects.player.x - width/2
-	y = objects.player.y - height/2
+	bounds = {}
+	bounds.height = 1
+	bounds.width = 20
+	bounds.x = objects.player.x - bounds.width/2
+	bounds.y = objects.player.y + (player.height/2)-bounds.height
 	checkVal = false
 	dropNorm = 5
 	for k,v in pairs(platforms) do
-		if (x < v.x+v.width and x+width > v.x and y < v.y+v.height and y+height > v.y) then
+		
+		if system.debug then	
+			love.graphics.setColor(0,0,0, 255)
+			love.graphics.rectangle("fill", bounds.x, bounds.y, bounds.width, bounds.height)
+			love.graphics.setColor(0,0,0)		
+		end
+		
+		if rectOverlap(bounds, v) then
 			checkVal = true
-			objects.player.y = (v.y-(height/2))+3
+			objects.player.y = (v.y-(player.height/2))+1
+			player.jumping = false
 		end
 	end	
 
@@ -325,9 +442,9 @@ end
 
 
 
-						--[[ 	Object functions such as the run loop,  item placement, item pickup and such   ]]--
+						--[[ 	objectFunc functions such as the run loop,  item placement, item pickup and such   ]]--
 
-object.run = function()
+objectFunc.run = function()
 	
 end
 
@@ -357,7 +474,7 @@ game.playing = function()
 	player.run()
 
 --draws the objects
-	object.run()
+	objectFunc.run()
 end
 
 game.start = function()
@@ -428,23 +545,32 @@ gui.joinServer = function()
 	love.graphics.draw(guiObjects.menuImg, (love.graphics.getWidth()/2)-(guiObjects.menuImg:getWidth()/2) , 0 );	
 	love.graphics.draw(guiObjects.saveMenuEnterText, (love.graphics.getWidth()/2)-(guiObjects.menuImg:getWidth()/2) , 0 );	
 	if system.menuStep == 1 then --Naming	
-		love.graphics.draw( "    Please Type an IP Address ", (love.graphics.getWidth()/2) - 140, (love.graphics.getHeight()/2) - 82-36)
-		love.graphics.draw( str, (love.graphics.getWidth()/2) - 148, (love.graphics.getHeight()/2))
+		print( "    Please Type an IP Address ", (love.graphics.getWidth()/2) - 140, (love.graphics.getHeight()/2) - 82-36, colours.black)
+		print( str, (love.graphics.getWidth()/2) - 148, (love.graphics.getHeight()/2), colours.black)
 		
 		if system.newPress.keyboard == "backspace" then
 			str = string.sub(str, (1), string.len(str)-1)
 		end
 		
-		if string.len(str) < 25 and keyAprooved(system.newPress.keyboard, okay) then
-			str = str..string.char(system.newPress.keyboard)
+		if string.len(str) < 25 and keyAprooved(system.newPress.keyboard, alphaNum) then
+			str = str..system.newPress.keyboard
 		end
 			
 		if system.newPress.keyboard == ("return") and not (str == nil) then
-			system.menuStep = 2
-		end
+			if not client.object then
+				require("inc/Client.lua")
+			end
 			
-	elseif system.menuStep == 2 then --Saving
-		gui.close()
+			if networking.gotServer and game.map then
+				fileData = love.filesystem.read( "maps/"..game.map )
+				global = table.load(fileData) 
+				platforms = global.platforms
+				objects = global.objects
+				game.menu = "start"
+				gui.close()
+			end
+		end
+
 	end
 end
 
@@ -490,6 +616,7 @@ gui.startServer = function()
 	
 	if system.newPress.keyboard == "return" and not(tempSelectedFile == false)then
 		--love.graphics.draw("Loaded: "..tempSelectedFile, love.graphics.getWidth()/2 , love.graphics.getHeight()/2 )
+		require('inc/Server.lua')
 		fileData = love.filesystem.read( "maps/"..tempSelectedFile )
 		global = table.load(fileData) 
 		platforms = global.platforms
@@ -503,13 +630,13 @@ end
 
 gui.debug = function()
 	--print("X: "..love.mouse.getX().." - Y:"..love.mouse.getY(), love.mouse.getX(), love.mouse.getY(), love.graphics.newColor(123,123,123,255))	
-	print("Debug Val: "..tostring(system.newPress.mouse), love.mouse.getX(), love.mouse.getY()-25, {r = 123, g = 123, b = 123, a = 255})	
+	print("Debug Val: "..tostring(game.map), love.mouse.getX(), love.mouse.getY()-25, {r = 123, g = 123, b = 123, a = 255})	
 	
 end
 
 
 
-						--[[ 	 Level Drawing, and object placement functions 	]]--
+						--[[ 	 Level Drawing, and objectFunc placement functions 	]]--
 
 drawing.run = function()
 	if drawing.active then
@@ -570,7 +697,7 @@ drawing.level = function()
 	end		
 end
 
-drawing.object = function()
+drawing.objectFunc = function()
 	if system.newPress.mouse == "l" then
 		temp = {}
 		temp = deepcopy( objectList[drawing.objectType] )
@@ -652,6 +779,20 @@ function getBiggest(a,b)
 		return {big = b, small = a}
 	end
 end
+
+function rectOverlap(rect1, rect2)
+	if(rect1.x <= rect2.x+rect2.width and rect1.x+rect1.width >= rect2.x and rect1.y <= rect2.y+rect2.height and rect1.y+rect1.height >= rect2.y) then
+		return true
+	else		
+		return false
+	end
+end
+
+
+
+
+
+
 
 
 
