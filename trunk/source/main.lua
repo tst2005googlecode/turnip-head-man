@@ -1,5 +1,6 @@
 --includes
 textGlobal = ''
+clientList = {}
 	require("inc/AnAL.lua")
 	require("inc/LUBE.lua")
 	require("inc/tablePersistence.lua")
@@ -8,11 +9,12 @@ textGlobal = ''
 --Globals 
 	infoPack = {}		
 	client = {}
+	server = {}
 	networking = {}
 	networking.gotServer = false
 	networking.text = ''
 	
-	
+
 	platforms = {}
 
 	objects = {
@@ -56,6 +58,10 @@ textGlobal = ''
 		paused = false,
 		menu = "wait",
 		jumpHeight = 75,
+		map = false,
+	}
+	
+	gameInfo = {
 		map = false,
 	}
 	
@@ -220,7 +226,7 @@ end
 
 function love.update(dt)
 
-	if client.object then
+	if client.object or server.object then
 		networking.updateClient(dt)
 	end
 
@@ -560,18 +566,20 @@ gui.joinServer = function()
 			if not client.object then
 				require("inc/Client.lua")
 			end
-			
-			if networking.gotServer and game.map then
-				fileData = love.filesystem.read( "maps/"..game.map )
+			system.menuStep = 2
+		end
+	
+	elseif system.menuStep == 2 then
+			if networking.gotServer and gameInfo.map then
+				fileData = love.filesystem.read( "maps/"..gameInfo.map )
 				global = table.load(fileData) 
 				platforms = global.platforms
 				objects = global.objects
 				game.menu = "start"
 				gui.close()
 			end
-		end
-
 	end
+	
 end
 
 gui.startServer = function()
@@ -616,6 +624,7 @@ gui.startServer = function()
 	
 	if system.newPress.keyboard == "return" and not(tempSelectedFile == false)then
 		--love.graphics.draw("Loaded: "..tempSelectedFile, love.graphics.getWidth()/2 , love.graphics.getHeight()/2 )
+		gameInfo.map = tempSelectedFile
 		require('inc/Server.lua')
 		fileData = love.filesystem.read( "maps/"..tempSelectedFile )
 		global = table.load(fileData) 
@@ -630,7 +639,7 @@ end
 
 gui.debug = function()
 	--print("X: "..love.mouse.getX().." - Y:"..love.mouse.getY(), love.mouse.getX(), love.mouse.getY(), love.graphics.newColor(123,123,123,255))	
-	print("Debug Val: "..tostring(game.map), love.mouse.getX(), love.mouse.getY()-25, {r = 123, g = 123, b = 123, a = 255})	
+	print("Debug Val: "..tostring(gameInfo.map), love.mouse.getX(), love.mouse.getY()-25, {r = 123, g = 123, b = 123, a = 255})	
 	
 end
 
