@@ -1,6 +1,7 @@
 --includes
 textGlobal = ''
 clientList = {}
+clientID = false
 	require("inc/AnAL.lua")
 	require("inc/LUBE.lua")
 	require("inc/tablePersistence.lua")
@@ -18,7 +19,17 @@ clientList = {}
 	platforms = {}
 
 	objects = {
-		player = {spriteNorm = "img/objects/turnipMan.gif", spriteRev = "img/objects/turnipManRev.gif", placeholder = "img/objects/player.png", placeholderAlpha = "img/objects/playerAlpha.png", x = 0, y = 0, startPlaced = false, startDirection = "right"},
+		player = {
+		currentDirection = "right",
+		spriteNorm = "img/objects/turnipMan.gif",
+		spriteRev = "img/objects/turnipManRev.gif",
+		placeholder = "img/objects/player.png",
+		placeholderAlpha = "img/objects/playerAlpha.png",
+		x = 0,
+		currDir = "right",
+		y = 0,
+		startPlaced = false,
+		},
 	}
 	
 	objectFunc	 = {}
@@ -63,6 +74,7 @@ clientList = {}
 	
 	gameInfo = {
 		map = false,
+		clientID = false,
 	}
 	
 	global = {}
@@ -304,6 +316,13 @@ end
 
 player.draw = function()
 	player.sprite:draw(objects.player.x, objects.player.y, 0, 1, 1, 22.5, 23.5)
+	
+	for i,d in pairs(clientList) do
+		if d.x and d.y  and not(d.clientID == clientID) then
+		print((tostring(d.clientID) ..' - '.. tostring(clientID)), 100, 200+(15*i), colours.black)
+			player.spriteIndex['right']:draw( d.x,  d.y, 0, 1, 1, 22.5, 23.5)
+		end		
+	end 
 end
 
 player.start = function()
@@ -344,7 +363,7 @@ player.walk = function(key)
 	up = {}
 	up.height = 1
 	up.width = 20
-	up.x = objects.player.x - player.width/4
+	up.x = objects.player.x - up.width/2
 	up.y = objects.player.y - (player.height/2)-up.height
 	
 	for k,v in pairs(platforms) do
@@ -384,14 +403,14 @@ player.walk = function(key)
 	end
 
 	if love.keyboard.isDown( "left" )  then
-			player.sprite = player.spriteIndex["left"]
+		objects.player.currentDirection = "left"
 		if not checkLeft then
 			player.sprite:play()
 			objects.player.x = objects.player.x -  player.stepDistance
 		end
 	end
 	if love.keyboard.isDown( "right" )   then
-		player.sprite = player.spriteIndex["right"]
+		objects.player.currentDirection = "right"
 		if not checkRight then
 			player.sprite:play()
 			objects.player.x = objects.player.x + player.stepDistance
@@ -408,6 +427,11 @@ player.walk = function(key)
 		player.sprite:seek(3)
 	end
 
+	if not(objects.player.currentDirection) then
+		objects.player.currentDirection = "right"
+	end
+	
+	player.sprite = player.spriteIndex[objects.player.currentDirection]--objects.player.currentDirection]
 end
 
 player.jump = function(key)
@@ -564,6 +588,7 @@ gui.joinServer = function()
 			
 		if system.newPress.keyboard == ("return") and not (str == nil) then
 			if not client.object then
+				host = str
 				require("inc/Client.lua")
 			end
 			system.menuStep = 2
@@ -639,7 +664,10 @@ end
 
 gui.debug = function()
 	--print("X: "..love.mouse.getX().." - Y:"..love.mouse.getY(), love.mouse.getX(), love.mouse.getY(), love.graphics.newColor(123,123,123,255))	
-	print("Debug Val: "..tostring(gameInfo.map), love.mouse.getX(), love.mouse.getY()-25, {r = 123, g = 123, b = 123, a = 255})	
+	--local servObj = server.object
+	--local clients = servObj.clients
+	local clientData = clientList[clientID] or {}
+	print("Debug Val: "..tostring(#clientList), love.mouse.getX(), love.mouse.getY()-25, {r = 123, g = 123, b = 123, a = 255})	
 	
 end
 
