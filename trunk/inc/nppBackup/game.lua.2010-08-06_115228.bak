@@ -1,0 +1,30 @@
+
+
+player = {
+	facing = 'left',
+	jumping = false,
+	x = false,
+	y = false,
+}
+
+
+game = {}
+function game:start()
+	collision:checkCollision( sprite1, sprite2 )
+end
+function game:paused()
+	
+end
+
+
+function player:jumping()
+	collision:checkCollision( sprite1, sprite2 )
+end
+
+function player:die()
+	error('nawwww....')
+end
+
+function player:walking()
+	collision:checkCollision( sprite1, sprite2 )
+end

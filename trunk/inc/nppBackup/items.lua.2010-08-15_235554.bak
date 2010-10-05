@@ -1,0 +1,7 @@
+local item = {}
+item.__index = item
+
+function item:add(index, action, colMap)
+	local a = {}
+	return setmetatable(a, animation)
+end

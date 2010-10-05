@@ -1,0 +1,14 @@
+local animation = {}
+animation.__index = animation
+
+function newImageAnimation(image, fw, fh, delay, frames)
+
+
+end
+
+
+function animation:update(dt)
+	if not self.playing then return end
+	
+	
+end	

@@ -1,0 +1,104 @@
+
+
+player = {
+	facing = 'left',
+	jumping = false,
+	x = false,
+	y = false,
+}
+
+
+game = {state = 'running'}
+
+---------------------------------------------------------------------------------------------------------
+------------------------------------------Game Functions-----------------------------------------------
+---------------------------------------------------------------------------------------------------------
+
+function game:run() --calls the game state 
+	game[game.state]()
+end
+
+function game:running() --is run when the game is `running`
+	if player.sprite then
+		player.sprite:update(dt)
+	end
+	
+	
+	
+end
+
+function game:start() --called when you start a game
+	
+end
+
+function game:newGame() --called when you start a NEW game
+	
+end
+
+function game:loadGame() --called when you start LOAD a game
+	
+end
+
+function game:paused()
+	
+end
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------
+------------------------------------------Player Functions-----------------------------------------------
+---------------------------------------------------------------------------------------------------------
+
+
+function player:gravity()
+	--collision:checkCollision( sprite1, sprite2 )
+end
+
+function player:jumping()
+	--collision:checkCollision( sprite1, sprite2 )
+end
+
+function player:die()
+	error('nawwww....')
+end
+
+function player:update()
+	player:gravity()
+	player:jumping()
+	player:walking()
+end
+
+function player:walking()
+	collision:checkCollision( sprite1, sprite2 )
+	
+		local sprite1 = maps[1]
+		sprite1.x=0
+		sprite1.y=0
+		
+	local sprite2 = turnip:getImage()
+		sprite2.x = mouse.X()
+		sprite2.y = mouse.Y()
+	love.graphics.draw(maps[1].image,0,0)
+	turnip:draw(mouse.X(), mouse.Y(), 0, 1, 1, 0, 0)
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

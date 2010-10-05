@@ -1,0 +1,167 @@
+
+
+player = {
+	facing = 'right',
+	isJumping = 0,
+	x = 100,
+	y = 100,
+	speed = 140,
+	gravitySpeed = 250,
+	falling = false,
+}
+
+game = {state = 'newGame'}
+
+local backgrounds = {}
+
+
+
+---------------------------------------------------------------------------------------------------------
+------------------------------------------Game Functions-----------------------------------------------
+---------------------------------------------------------------------------------------------------------
+
+function game:run() --calls the game state 
+	game[game.state]()
+end
+
+function game:running() --is run when the game is `running`
+	player:update()
+	game:backgrounds()
+end
+
+function game:backgrounds()
+	for i,v in pairs(backgrounds) do
+		love.graphics.draw(v.image,v.x,v.y)
+	end
+end
+
+function game:start() --called when you start a game
+	
+end
+
+function game:newGame() --called when you start a NEW game
+	player.left = newImageAnimation('img/player/left/', 0.08, 9)
+	player.right =  newImageAnimation('img/player/right/', 0.08, 9)
+	table.insert(backgrounds,{image = love.graphics.newImage('img/map1.png'), collide = true, collisionMap = collision:newCollisionMap('img/map1.png'), x=0,y=0,})
+	game.state = 'running'
+end
+
+function game:loadGame() --called when you start LOAD a game
+	
+end
+
+function game:paused()
+	
+end
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------
+------------------------------------------Player Functions-----------------------------------------------
+---------------------------------------------------------------------------------------------------------
+
+
+function player:gravity()
+	if player.isJumping < 1 then
+		player.isJumping = 0
+		if not player:isColliding(player.x,(player.y+player.determineSpeed(player.gravitySpeed))) then
+			player.y = player.y+player.determineSpeed(player.gravitySpeed)
+		elseif not player:isColliding(player.x,(player.y+1)) then
+		
+		elseif player:isColliding(player.x,(player.y)) then
+			player.falling = false
+		end
+	end
+end
+
+function player:jumping()
+	if player.isJumping > 0 then
+		player.y = player.y - player.determineSpeed(player.gravitySpeed)
+		player.isJumping = player.isJumping - player.determineSpeed(player.gravitySpeed)
+		
+	end
+end
+
+function player:die()
+	error('nawwww....')
+end
+
+function player:update(dt)
+	player.sprite():update(dt)
+	player:gravity()
+	player:jumping()
+	player:walking()
+	player:draw()
+end
+
+function player:walking()
+	
+	local mathDelta = player.determineSpeed(player.speed)
+
+	if love.keyboard.isDown( 'left')  then
+		player.x = math.ceil(player.x - mathDelta)
+		player.facing = 'left'
+		player:sprite():toggle(true)
+    end
+
+    if love.keyboard.isDown('right') then
+		player.x = math.ceil(player.x + mathDelta)
+		player.facing = 'right'
+		player:sprite():toggle(true)
+    end
+
+    if love.keyboard.isDown('up') and player.falling == false then
+		player.falling = true
+		player.isJumping = 50
+		player:sprite():toggle(false)
+    end
+
+    if love.keyboard.isDown('down') then
+		
+    end
+	
+	if not love.keyboard.isDown('down') and not love.keyboard.isDown('up') and not love.keyboard.isDown('right') and not love.keyboard.isDown( 'left') then
+		player:sprite():toggle(false)
+		player:sprite():reset(3)
+	end
+	
+	debugVal = player.falling
+end
+
+function player:draw()
+	 player:sprite():draw(player.x, player.y, 0,1,1,0,0)
+end
+
+function player:isColliding(x,y)
+	local sprite1 = player:sprite():getImage()
+	sprite1.x = x
+	sprite1.y = y
+		
+	return collision:checkCollision( sprite1, backgrounds[1] )
+end
+
+function player:sprite()
+	return player[player.facing]
+end
+
+function player.determineSpeed(speed)
+	return math.round((speed * dt),0)
+end
+
+
+
+
+
+
+
+
+
+
+
+

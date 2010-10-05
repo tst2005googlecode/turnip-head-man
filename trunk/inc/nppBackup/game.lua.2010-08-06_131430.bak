@@ -1,0 +1,132 @@
+
+
+player = {
+	facing = 'right',
+	jumping = false,
+	x = 100,
+	y = 100,
+}
+
+game = {state = 'newGame'}
+
+local backgrounds = {}
+
+
+
+---------------------------------------------------------------------------------------------------------
+------------------------------------------Game Functions-----------------------------------------------
+---------------------------------------------------------------------------------------------------------
+
+function game:run() --calls the game state 
+	game[game.state]()
+end
+
+function game:running() --is run when the game is `running`
+	player:update()
+	game:backgrounds()
+end
+
+function game:backgrounds()
+	for i,v in pairs(backgrounds) do
+		love.graphics.draw(v.image,v.x,v.y)
+	end
+end
+
+function game:start() --called when you start a game
+	
+end
+
+function game:newGame() --called when you start a NEW game
+	player.left = newImageAnimation('img/player/left/', 0.08, 9)
+	player.right =  newImageAnimation('img/player/right/', 0.08, 9)
+	table.insert(backgrounds,{image = love.graphics.newImage('img/map1.png'), collide = true, collisionMap = collision:newCollisionMap('img/map1.png'), x=0,y=0,})
+	game.state = 'running'
+end
+
+function game:loadGame() --called when you start LOAD a game
+	
+end
+
+function game:paused()
+	
+end
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------
+------------------------------------------Player Functions-----------------------------------------------
+---------------------------------------------------------------------------------------------------------
+
+
+function player:gravity()
+	--collision:checkCollision( sprite1, sprite2 )
+end
+
+function player:jumping()
+	--collision:checkCollision( sprite1, sprite2 )
+end
+
+function player:die()
+	error('nawwww....')
+end
+
+function player:update(dt)
+	player.sprite():update(dt)
+	player:isColliding()
+	player:gravity()
+	player:jumping()
+	player:walking()
+	player:draw()
+end
+
+function player:walking()
+
+	if keyboard.last = "left"  then
+       player.x = sprites[5].x - 200 * dt
+    end
+
+    if keyboard.last "right"  then
+       player.x = sprites[5].x + 200 * dt
+    end
+
+    if keyboard.last = "up" then
+       player.y = sprites[5].y - 200 * dt
+    end
+
+    if keyboard.last = "down" then
+       player.y = sprites[5].y + 200 * dt
+    end
+
+end
+
+function player:draw()
+	 player:sprite():draw(player.x, player.y, 0,1,1,0,0)
+end
+
+function player:isColliding()
+	--collision:checkCollision( player, sprite2 )
+end
+
+function player:sprite()
+	return player[player.facing]
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,8 @@
+local item = {}
+items = {}
+item.__index = item
+
+function item:add(index, action, colMap)
+	items[] = {colllisionMap = collision:newCollisionMap(colMap),}
+	
+end
