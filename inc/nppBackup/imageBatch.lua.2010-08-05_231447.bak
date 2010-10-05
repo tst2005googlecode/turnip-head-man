@@ -1,0 +1,45 @@
+local animation = {}
+animation.__index = animation
+
+function newImageAnimation(image, delay, frames)
+local a = {}
+	a.img = image
+	a.timer = 0
+	a.position = 1
+	a.playing = true
+	a.speed = delay
+	a.frames = {}
+	a.frameCollisions = {}
+	a.currentFrame = 1
+	a.step = 1
+	for x = 1, frames do
+		local frameName = image..'_'..x..'.png'
+		a.frames[x] = love.graphics.newImage(frameName)
+		a.frameCollisions[x] collision:newCollisionMap( frameName )
+	end
+
+	return setmetatable(a, animation)
+
+end
+
+function animation:update(dt)
+	self.step = self.step + 1
+	if self.step > 60*self.speed then
+		self.currentFrame = self.currentFrame + 1
+		self.step = 1
+		if self.currentFrame > #self.frames then
+			self.currentFrame = 1
+		end
+	end
+
+end
+
+
+
+function animation:draw(x, y, angle, sx, sy, ox, oy)
+	love.graphics.draw(self.frames[self.currentFrame], x, y, angle, sx, sy, ox, oy)
+end
+
+function animation:getImage()
+	return {image = self.frames[self.currentFrame], collisonMap = }
+end

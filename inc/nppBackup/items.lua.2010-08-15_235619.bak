@@ -1,0 +1,7 @@
+local item = {}
+item.__index = item
+
+function item:add(index, action, colMap)
+	local a[] = {colllisionMap = collision:newCollisionMap(colMap),}
+	return setmetatable(a, item)
+end

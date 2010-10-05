@@ -1,0 +1,76 @@
+
+
+player = {
+	facing = 'left',
+	jumping = false,
+	x = false,
+	y = false,
+}
+
+
+game = {}
+
+---------------------------------------------------------------------------------------------------------
+------------------------------------------Game Functions-----------------------------------------------
+---------------------------------------------------------------------------------------------------------
+
+function game:run() --calls the game state 
+	collision:checkCollision( sprite1, sprite2 )
+end
+
+function game:running() --is run when the game is `running`
+	collision:checkCollision( sprite1, sprite2 )
+end
+
+function game:start() --called when you start a game
+	
+end
+
+function game:newGame() --called when you start a NEW game
+	
+end
+
+function game:loadGame() --called when you start LOAD a game
+	
+end
+
+function game:paused()
+	
+end
+
+
+---------------------------------------------------------------------------------------------------------
+------------------------------------------Player Functions-----------------------------------------------
+---------------------------------------------------------------------------------------------------------
+
+
+function player:gravity()
+	--collision:checkCollision( sprite1, sprite2 )
+end
+
+function player:jumping()
+	--collision:checkCollision( sprite1, sprite2 )
+end
+
+function player:die()
+	error('nawwww....')
+end
+
+function player:walking()
+	collision:checkCollision( sprite1, sprite2 )
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

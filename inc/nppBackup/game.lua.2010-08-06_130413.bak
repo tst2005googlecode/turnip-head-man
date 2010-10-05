@@ -1,0 +1,124 @@
+
+
+player = {
+	facing = 'left',
+	jumping = false,
+	x = false,
+	y = false,
+}
+
+game = {state = 'newGame'}
+
+local backgrounds = {}
+
+
+
+---------------------------------------------------------------------------------------------------------
+------------------------------------------Game Functions-----------------------------------------------
+---------------------------------------------------------------------------------------------------------
+
+function game:run() --calls the game state 
+	game[game.state]()
+end
+
+function game:running() --is run when the game is `running`
+	player:update()
+	game:backgrounds()
+end
+
+function game:backgrounds()
+	for i,v in pairs(backgrounds) do
+		love.graphics.draw(v.image,v.x,v.y)
+	end
+end
+
+function game:start() --called when you start a game
+	
+end
+
+function game:newGame() --called when you start a NEW game
+	player.left = newImageAnimation('img/player/left/', 0.08, 9)
+	player.right =  newImageAnimation('img/player/right/', 0.08, 9)
+	table.insert(backgrounds,{image = love.graphics.newImage('img/map1.png'), collide = true, collisionMap = collision:newCollisionMap('img/map1.png'), x=0,y=0,})
+	game.state = 'running'
+end
+
+function game:loadGame() --called when you start LOAD a game
+	
+end
+
+function game:paused()
+	
+end
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------
+------------------------------------------Player Functions-----------------------------------------------
+---------------------------------------------------------------------------------------------------------
+
+
+function player:gravity()
+	--collision:checkCollision( sprite1, sprite2 )
+end
+
+function player:jumping()
+	--collision:checkCollision( sprite1, sprite2 )
+end
+
+function player:die()
+	error('nawwww....')
+end
+
+function player:update(dt)
+	if player.sprite then
+		local sprite = player.sprite()
+		sprite:update(dt)
+	end
+	player:gravity()
+	player:jumping()
+	player:walking()
+end
+
+function player:walking()
+
+	
+	
+		local sprite1 = maps[1]
+		sprite1.x=0
+		sprite1.y=0
+		
+	local sprite2 = turnip:getImage()
+		sprite2.x = mouse.X()
+		sprite2.y = mouse.Y()
+	love.graphics.draw(maps[1].image,0,0)
+	turnip:draw(mouse.X(), mouse.Y(), 0, 1, 1, 0, 0)
+end
+
+function player:isColliding()
+	--collision:checkCollision( player, sprite2 )
+end
+
+function player:sprite()
+	return player[player.facing]
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+

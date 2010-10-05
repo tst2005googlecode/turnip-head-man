@@ -1,0 +1,7 @@
+local item = {}
+item.__index = item
+
+function item:add()
+
+
+end

@@ -1,0 +1,5 @@
+
+
+mouse = {X = love.mouse.getX, Y = love.mouse.getY}
+
+--keyboard

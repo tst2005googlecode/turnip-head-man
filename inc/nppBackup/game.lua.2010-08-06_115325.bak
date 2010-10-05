@@ -1,0 +1,50 @@
+
+
+player = {
+	facing = 'left',
+	jumping = false,
+	x = false,
+	y = false,
+}
+
+
+game = {}
+
+
+
+function game:run() --calls the game state 
+	collision:checkCollision( sprite1, sprite2 )
+end
+
+function game:running() --is run when the game is `running`
+	collision:checkCollision( sprite1, sprite2 )
+end
+
+function game:start() --called when you start a game
+	collision:checkCollision( sprite1, sprite2 )
+end
+
+function game:newGame() --called when you start NEW game
+	collision:checkCollision( sprite1, sprite2 )
+end
+
+function game:loadGame() --called when you start a game
+	collision:checkCollision( sprite1, sprite2 )
+end
+
+function game:paused()
+	
+end
+
+
+function player:jumping()
+	collision:checkCollision( sprite1, sprite2 )
+end
+
+function player:die()
+	error('nawwww....')
+end
+
+function player:walking()
+	collision:checkCollision( sprite1, sprite2 )
+end

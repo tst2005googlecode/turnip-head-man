@@ -1,0 +1,43 @@
+local animation = {}
+animation.__index = animation
+
+function newImageAnimation(image, delay, frames)
+local a = {}
+	a.img = image
+	a.timer = 0
+	a.position = 1
+	a.playing = true
+	a.speed = 1
+	a.frames = {}
+	for x = 1, frames do
+		a.frames[x] = love.graphics.
+	end
+	
+	local imgw = image:getWidth()
+	local imgh = image:getHeight()
+	if frames == 0 then
+		frames = imgw / fw * imgh / fh
+	end
+	local rowsize = imgw/fw
+	for i = 1, frames do
+		local row = math.floor((i-1)/rowsize)
+		local column = (i-1)%rowsize
+		local frame = love.graphics.newQuad(column*fw, row*fh, fw, fh, imgw, imgh)
+		table.insert(a.frames, frame)
+		table.insert(a.delays, delay)
+	end
+	return setmetatable(a, animation)
+
+end
+
+
+function animation:update(dt)
+	if not self.playing then return end
+	self.timer = self.timer + dt * self.speed
+	if self.timer > self.delays[self.position] then
+		self.timer = self.timer - self.delays[self.position]
+		self.position = self.position + 1 * self.direction
+		if self.position
+	end
+	
+end	

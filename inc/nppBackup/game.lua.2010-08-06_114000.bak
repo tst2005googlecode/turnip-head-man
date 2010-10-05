@@ -1,0 +1,5 @@
+game = {}
+
+function game:walking()
+	collision:checkCollision( sprite1, sprite2 )
+end
