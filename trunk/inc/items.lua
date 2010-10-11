@@ -7,12 +7,12 @@ predefinedItems = {
 
 function item:add(index, x, y)
 	local toAdd = deepcopy(predefinedItems[index])
-		  toAdd.x = x
+		  toAdd.x = (x)
+		  toAdd.origX = (math.abs(backgrounds[4].x) +x)
 		  toAdd.y = y
 		  toAdd.gravitySpeed = 0 
 		  toAdd.isJumping = 0
-		  toAdd.realX = x
-		  toAdd.offset = player.psudoX
+		  toAdd.offset = backgrounds[4].x
 	table.insert(items,toAdd)
 end
 
