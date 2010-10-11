@@ -47,5 +47,5 @@ function animation:draw(x, y, angle, sx, sy, ox, oy)
 end
 
 function animation:getImage()
-	return {image = self.frames[self.currentFrame], collisionMap = self.frameCollisions[self.currentFrame]}
+	return {image = self.frames[self.currentFrame], colMap = self.frameCollisions[self.currentFrame]}
 end
