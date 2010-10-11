@@ -5,9 +5,9 @@ function love.conf(t)
 
 	t.screen.fullscreen = false -- Enable fullscreen (boolean)
 	t.screen.vsync = false       -- Enable vertical sync (boolean)
-	t.screen.fsaa = 0           -- The number of FSAA-buffers (number)
-	t.screen.width = 1024       -- The window width (number)
-	t.screen.height = 800       -- The window height (number)
+	t.screen.fsaa = 2           -- The number of FSAA-buffers (number)
+	t.screen.width = 600       -- The window width (number)
+	t.screen.height = 600       -- The window height (number)
 
 	t.modules.joystick = false  -- Enable the joystick module (boolean)
 	t.modules.audio = false     -- Enable the audio module (boolean)
