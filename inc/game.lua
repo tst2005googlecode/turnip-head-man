@@ -32,22 +32,19 @@ end
 
 function game:backgrounds()
 	paralaxingBG()
-	--love.graphics.draw(backgrounds[2].image,0,0)
+	love.graphics.draw(backgrounds[2].image,backgrounds[2].x ,0)
 	player:draw()
 	
---[[ 	
+
 	r,g,b,a = love.graphics.getColor()
 
 	love.graphics.setColor(r,g,b,160)
-	love.graphics.draw(backgrounds[1].image,0,0)
+	love.graphics.draw(backgrounds[1].image,backgrounds[1].x,0)
 	love.graphics.setColorMode( 'modulate' )
 	love.graphics.setColor(r,g,b,a)
 	
 	
-	love.graphics.draw(backgrounds[3].image,0,0)
-	 ]]
-	
-	
+	love.graphics.draw(backgrounds[3].image,backgrounds[3].x,0)
 	love.graphics.draw(backgrounds[4].image, backgrounds[4].x, 0)
 end
 
@@ -177,11 +174,25 @@ function paralaxingBG()
 	end
 		backgrounds[4].x = x
 	if (math.abs(backgrounds[4].x)+1)  > (backgrounds[4].image:getWidth() - love.graphics.getWidth()) then
-		backgrounds[4].x = (backgrounds[4].image:getWidth() - love.graphics.getWidth() ) * (-1)
+		x = (backgrounds[4].image:getWidth() - love.graphics.getWidth() ) * (-1)
 	end	
 	
+	for i,v in pairs(backgrounds) do
+		if i == 2 then --bushes
+			v.x = math.round(0 - (x*0.95))*-1
+		elseif i == 1 then --clouds
+			v.x = 0 + math.round(0 - (x*0.09))*-1
+		else --interactables
+			v.x = x
+		end
+	end
+	
+	for i,v in pairs(items) do
+		v.x =  v.origX + (backgrounds[4].x) * 1
+		
+	end
 
-	debugVal = backgrounds[4].x..' || '..(backgrounds[4].image:getWidth() - love.graphics.getWidth())
+debugVal = player.x
 
 end
 
