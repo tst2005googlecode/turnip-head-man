@@ -3,9 +3,10 @@
 
 
 --local bound = {right = love.graphics.newImage('img/player/right/walkingBounding.png'), left = love.graphics.newImage('img/player/left/walkingBounding.png')}
-game = {state = 'waiting'}
+game = {state = 'newGame', paralaxX = 0}
 
 backgrounds = {}
+
 
 
 
@@ -15,10 +16,6 @@ backgrounds = {}
 
 function game:run() --calls the game state 
 	game[game.state]()
-end
-
-function game:waiting() --calls the game state 
-	
 end
 
 function game:running() --is run when the game is `running`
@@ -34,19 +31,24 @@ function game:running() --is run when the game is `running`
 end
 
 function game:backgrounds()
-	love.graphics.draw(backgrounds[2].image, backgrounds[2].x,backgrounds[2].y)
+	paralaxingBG()
+	--love.graphics.draw(backgrounds[2].image,0,0)
 	player:draw()
+	
+--[[ 	
 	r,g,b,a = love.graphics.getColor()
 
 	love.graphics.setColor(r,g,b,160)
-	love.graphics.draw(backgrounds[1].image,backgrounds[1].x,backgrounds[1].y)
+	love.graphics.draw(backgrounds[1].image,0,0)
 	love.graphics.setColorMode( 'modulate' )
 	love.graphics.setColor(r,g,b,a)
 	
 	
-	love.graphics.draw(backgrounds[3].image,backgrounds[1].x,backgrounds[1].y)
-	love.graphics.draw(backgrounds[4].image,backgrounds[1].x,backgrounds[1].y)
-
+	love.graphics.draw(backgrounds[3].image,0,0)
+	 ]]
+	
+	
+	love.graphics.draw(backgrounds[4].image, backgrounds[4].x, 0)
 end
 
 function game:start() --called when you start a game
@@ -54,9 +56,11 @@ function game:start() --called when you start a game
 end
 
 function game:newGame() --called when you start a NEW game
+	player.left = newImageAnimation('img/player/left/', 0.08, 9)
+	player.right =  newImageAnimation('img/player/right/', 0.08, 9)
 	game:buildMap()
 	game.state = 'running'
-	int = game:buildItemsFromMap('img/maps/1/1/3.png', 'img/items/coinBlock/1.png')
+	--int = game:buildItemsFromMap('img/maps/1/1/3.png', 'img/items/coinBlock/1.png')
 end
 
 function game:loadGame() --called when you start LOAD a game
@@ -71,10 +75,10 @@ function game:buildMap()
 		
 	local temp = 'img/maps/'..player.world..'/'..player.stage..'/'
 	backgrounds = {
-		{colMap = false, image = love.graphics.newImage( temp..'1.png'),x=0,y=0},
-		{colMap = false, image = love.graphics.newImage( temp..'2.png'),x=0,y=0},
-		{colMap = collision:newCollisionMap(temp..'3.png'),image = love.graphics.newImage( temp..'3.png'),x=0,y=0},
-		{colMap = collision:newCollisionMap(temp..'4.png'),image = love.graphics.newImage( temp..'4.png'),x=0,y=0},
+		{colMap = false, image = love.graphics.newImage( temp..'1.gif'),x=0,y=0},
+		{colMap = false, image = love.graphics.newImage( temp..'2.gif'),x=0,y=0},
+		{colMap = collision:newCollisionMap(temp..'3.gif'),image = love.graphics.newImage( temp..'3.gif'),x=0,y=0},
+		{colMap = collision:newCollisionMap(temp..'4.gif'),image = love.graphics.newImage( temp..'4.gif'),x=0,y=0},
 
 	}
 
@@ -131,6 +135,7 @@ function game:gravity(object)
 			
 			else
 				game:findGround(object)
+				object.falling = false
 			end
 			
 			if player:isColliding(false,(object.y+1)) then
@@ -144,24 +149,45 @@ function game:gravity(object)
 end
 
 function game:findGround(object)
-	for x = 1, 99 do
+local y = 2
+local xVal = 2
+if object.isPlayer then xVal = player.getX() end
+	for x = 1, x+1 do
 		if not player:isColliding(object.x,(object.y+1),object.colMap) then
 			object.y = object.y+1
+			y = y + 1
 		else
 			break
-			end
 		end
+		
+	end
 end
 
 function game.determineSpeed(speed)
 	return math.ceil(math.round((speed * dt),0))
 end
 
-function game:isColliding(sprite1, sprite2 )
+
+
+function paralaxingBG()
+	if (player.maxPosition - player.x) <0 then 
+		x = (player.maxPosition - player.x)
+	else
+		x = 0
+	end
+		backgrounds[4].x = x
+	if (math.abs(backgrounds[4].x)+1)  > (backgrounds[4].image:getWidth() - love.graphics.getWidth()) then
+		backgrounds[4].x = (backgrounds[4].image:getWidth() - love.graphics.getWidth() ) * (-1)
+	end	
+	
+
+	debugVal = backgrounds[4].x..' || '..(backgrounds[4].image:getWidth() - love.graphics.getWidth())
 
 end
 
-
+function doParalax()
+	if player.x > player.maxPosition then return true else return false end
+end
 
 function intersection2(table1, table2)
     local values = {}

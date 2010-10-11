@@ -6,10 +6,7 @@ player = {
 	facing = 'left',
 	isJumping = 0,
 	x = 100,
-	realX = 100,
 	y = 100,
-	psudoX = false,
-	psudoY = 0,
 	speed = 140,
 	gravitySpeed = 250,
 	falling = false,
@@ -19,26 +16,24 @@ player = {
 	image = images.colImage,
 	coins = 0,
 	isPlayer = true,
-	left = newImageAnimation('img/player/left/', 0.08, 9),
-	right =  newImageAnimation('img/player/right/', 0.08, 9),
+	maxPosition = 300,
 }
 
 
 function player:isColliding(xVal, yVal)
-	if backgrounds then
-		local temp ={}
-		temp.colMap = player.colMap
-		temp.image = player.image
+	local temp ={}
+	temp.colMap = player.colMap
+	temp.image = player.image
 
-		if not xVal then temp.x = player.x else temp.x = xVal  end
-		if not yVal then temp.y = player.y else temp.y = yVal end
-		for i,v in pairs(items) do
-			if v.colMap and collision:checkCollision( temp, v ) then return collision:checkCollision( temp, v ) end
-		end
-		
-		for i,v in pairs(backgrounds) do
-			if v.colMap and collision:checkCollision( temp, v ) then return collision:checkCollision( temp, v ) end
-		end
+	if not xVal then temp.x = player.getX() else temp.x = xVal  end
+	if not yVal then temp.y = player.y else temp.y = yVal end
+	
+	for i,v in pairs(items) do
+		if v.colMap and collision:checkCollision( temp, v ) then return true end
+	end
+	
+	for i,v in pairs(backgrounds) do
+		if v.colMap and collision:checkCollision( temp, v ) then return true end
 	end
 end
 
@@ -59,22 +54,19 @@ function player:die()
 end
 
 function player:update(dt)
-
 	player.sprite():update(dt)
 	player:jumping()
 	player:walking()
-		
-	scrollingBG()
 
 end
 
+
 function player:walking()
-	local check = false
-	local check2 = false
+		local check = false
+		local check2 = false
 	local mathDelta = game.determineSpeed(player.speed)
 	
 	local check = false
-	local check2 = false
 	
 	if love.keyboard.isDown( 'left')  then
 	
@@ -82,15 +74,15 @@ function player:walking()
 			player.facing = 'left' 
 		end
 		
-		check = player:isColliding(player.x-mathDelta,false)
-		check2 = player:isColliding(player.x-mathDelta,player.y-2)
+		check = player:isColliding(player.getX()-mathDelta-1,false)
+		check2 = player:isColliding(player.getX()-mathDelta-1,player.y-2)
 
 		if not check then
-			player.realX = player.realX - mathDelta
+			player.x = player.x - mathDelta
 			player:sprite():toggle(true)
 		else
 			if not check2 then
-				player.realX = player.realX - mathDelta
+				player.x = player.x - mathDelta
 				player.y = player.y - 2
 				player:sprite():toggle(true)
 			else
@@ -99,15 +91,15 @@ function player:walking()
 			end
 		end
 		
-		check = player:isColliding(player.x-1,false)
-		check2 = player:isColliding(player.x-1,player.y-2)
+		check = player:isColliding(player.getX()-2,false)
+		check2 = player:isColliding(player.getX()-2,player.y-2)
 		
 		if not check then
-			player.realX = player.realX-1
+			player.x = player.x-1
 			player:sprite():toggle(true)
 		else
 			if not check2 then
-				player.realX = player.realX - 1
+				player.x = player.x - 1
 				player.y = player.y - 2
 				player:sprite():toggle(true)
 			else
@@ -124,15 +116,15 @@ function player:walking()
 		end
 	
 	
-		check = player:isColliding(player.x+mathDelta,false)
-		check2 = player:isColliding(player.x+mathDelta,player.y-1)
+		check = player:isColliding(player.getX()+mathDelta+1,false)
+		check2 = player:isColliding(player.getX()+mathDelta+1,player.y-1)
 
 		if not check then
-			player.realX = player.realX + mathDelta
+			player.x = player.x + mathDelta
 			player:sprite():toggle(true)
 		else
 			if not check2 then
-				player.realX = player.realX + mathDelta
+				player.x = player.x + mathDelta
 				player.y = player.y - 1
 				player:sprite():toggle(true)
 			else
@@ -141,15 +133,15 @@ function player:walking()
 			end
 		end
 		
-		check = player:isColliding(player.x+1,false)
-		check2 = player:isColliding(player.x+1,player.y-1)
+		check = player:isColliding(player.getX()+2,false)
+		check2 = player:isColliding(player.getX()+2,player.y-1)
 		
 		if not check then
-			player.realX = player.realX+1
+			player.x = player.x+1
 			player:sprite():toggle(true)
 		else
 			if not check2 then
-				player.realX = player.realX + 1
+				player.x = player.x + 1
 				player.y = player.y - 1
 				player:sprite():toggle(true)
 			else
@@ -174,49 +166,24 @@ function player:walking()
 		player:sprite():toggle(false)
 		player:sprite():reset(3)
 	end
-
+	
+	
 end
 
 function player:draw()
-	 player:sprite():draw(player.x, player.y, 0,1,1,0,0)
-	 --love.graphics.draw(bound[player.facing],player.x, player.y, 0,1,1,0,0)
+	local x = player.getX()
+
+	player:sprite():draw(x, player.y, 0,1,1,0,0)
+	--love.graphics.draw(bound[player.facing],player.x, player.y, 0,1,1,0,0)
 end
 
-function scrollingBG()
-	if player.realX > 250 then
-		if not player:isColliding(250,false) then
-			if not player.psudoX then player.psudoX = 0 end
-			player.x = 250
-		end
-	else
-		if not player:isColliding(player.realX,false) then
-			player.x = player.realX
-		end
-		player.psudoX = false
-	end	
-	
-
-	if player.psudoX then 
-		if not player:isColliding(player.x,false) then
-			player.psudoX = 250 - player.realX
-			for i,v in pairs(backgrounds) do
-				if not player:isColliding(player.x,false) then
-					v.x = player.psudoX
-				end
-			end
-		end
-		
-		for i,v in pairs(items) do
-		if not v.offset then v.offset = 0 end
-			v.x = (v.realX + math.abs(v.offset)) + (player.psudoX)
-			debugVal = v.offset
-		end		
+function player.getX()
+	local xVal
+	if doParalax() then xVal = player.maxPosition else xVal = player.x end
+	if (math.abs(backgrounds[4].x)+1)  > (backgrounds[4].image:getWidth() - love.graphics.getWidth()) then
+		xVal = player.x + backgrounds[4].x
 	end
-	
-
-	
-	--debugVal = tostring(player.psudoX)..' || '..player.x..' || '..player.realX
-	
+	return xVal
 end
 
 function player:sprite()

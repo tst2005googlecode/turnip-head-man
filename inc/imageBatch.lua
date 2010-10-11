@@ -12,7 +12,7 @@ local a = {}
 	a.currentFrame = 1
 	a.step = 1
 	for x = 1, frames do
-		local frameName = image..x..'.png'
+		local frameName = image..x..'.gif'
 		a.frames[x] = love.graphics.newImage(frameName)
 		a.frameCollisions[x] =  collision:newCollisionMap( frameName )
 	end
