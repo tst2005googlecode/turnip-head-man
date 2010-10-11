@@ -1,24 +1,11 @@
 
 
-player = {
-	facing = 'left',
-	isJumping = 0,
-	x = 100,
-	y = 100,
-	speed = 140,
-	gravitySpeed = 250,
-	falling = false,
-	world = 1,
-	stage = 1,
-	colMap = collision:newCollisionMap('img/player/collision.png'),
-	image = love.graphics.newImage('img/player/collision.png'),
-	coins = 0,
-	isPlayer = true,
-}
---local bound = {right = love.graphics.newImage('img/player/right/walkingBounding.png'), left = love.graphics.newImage('img/player/left/walkingBounding.png')}
-game = {state = 'newGame'}
 
-local backgrounds = {}
+
+--local bound = {right = love.graphics.newImage('img/player/right/walkingBounding.png'), left = love.graphics.newImage('img/player/left/walkingBounding.png')}
+game = {state = 'waiting'}
+
+backgrounds = {}
 
 
 
@@ -28,6 +15,10 @@ local backgrounds = {}
 
 function game:run() --calls the game state 
 	game[game.state]()
+end
+
+function game:waiting() --calls the game state 
+	
 end
 
 function game:running() --is run when the game is `running`
@@ -43,18 +34,18 @@ function game:running() --is run when the game is `running`
 end
 
 function game:backgrounds()
-	love.graphics.draw(backgrounds[2].image,0,0)
+	love.graphics.draw(backgrounds[2].image, backgrounds[2].x,backgrounds[2].y)
 	player:draw()
 	r,g,b,a = love.graphics.getColor()
 
 	love.graphics.setColor(r,g,b,160)
-	love.graphics.draw(backgrounds[1].image,0,0)
+	love.graphics.draw(backgrounds[1].image,backgrounds[1].x,backgrounds[1].y)
 	love.graphics.setColorMode( 'modulate' )
 	love.graphics.setColor(r,g,b,a)
 	
 	
-	love.graphics.draw(backgrounds[3].image,0,0)
-	love.graphics.draw(backgrounds[4].image,0,0)
+	love.graphics.draw(backgrounds[3].image,backgrounds[1].x,backgrounds[1].y)
+	love.graphics.draw(backgrounds[4].image,backgrounds[1].x,backgrounds[1].y)
 
 end
 
@@ -63,8 +54,6 @@ function game:start() --called when you start a game
 end
 
 function game:newGame() --called when you start a NEW game
-	player.left = newImageAnimation('img/player/left/', 0.08, 9)
-	player.right =  newImageAnimation('img/player/right/', 0.08, 9)
 	game:buildMap()
 	game.state = 'running'
 	int = game:buildItemsFromMap('img/maps/1/1/3.png', 'img/items/coinBlock/1.png')
@@ -170,171 +159,6 @@ end
 
 function game:isColliding(sprite1, sprite2 )
 
-end
-
-
----------------------------------------------------------------------------------------------------------
-------------------------------------------Player Functions-----------------------------------------------
----------------------------------------------------------------------------------------------------------
-
-
-function player:isColliding(xVal, yVal)
-	local temp ={}
-	temp.colMap = player.colMap
-	temp.image = player.image
-
-	if not xVal then temp.x = player.x else temp.x = xVal  end
-	if not yVal then temp.y = player.y else temp.y = yVal end
-	for i,v in ipairs(items) do
-		if v.colMap and collision:checkCollision( temp, v ) then return collision:checkCollision( temp, v ) end
-	end
-	for i,v in ipairs(backgrounds) do
-		if v.colMap and collision:checkCollision( temp, v ) then return collision:checkCollision( temp, v ) end
-	end
-end
-
-function player:jumping()
-	local tempJ = player.isJumping - game.determineSpeed(player.gravitySpeed)
-	local check = player:isColliding(false, (player.y - game.determineSpeed(player.gravitySpeed)))
-	if player.isJumping > 0 and not check then
-		player.y = player.y - game.determineSpeed(player.gravitySpeed)
-		player.isJumping = tempJ
-	elseif check then
-		player.isJumping = true
-		player.isJumping = 0
-	end
-end
-
-function player:die()
-	error('nawwww....')
-end
-
-function player:update(dt)
-	love.graphics.draw(images.playerColMap,player.x,player.y)
-	player.sprite():update(dt)
-	player:jumping()
-	player:walking()
-
-end
-
-function player:walking()
-		local check = false
-		local check2 = false
-	local mathDelta = game.determineSpeed(player.speed)
-	
-	local check = false
-	
-	if love.keyboard.isDown( 'left')  then
-	
-		if not (player.facing == 'left') then
-			player.facing = 'left' 
-		end
-		
-		check = player:isColliding(player.x-mathDelta,false)
-		check2 = player:isColliding(player.x-mathDelta,player.y-1)
-
-		if not check then
-			player.x = player.x - mathDelta
-			player:sprite():toggle(true)
-		else
-			if not check2 then
-				player.x = player.x - mathDelta
-				player.y = player.y - 1
-				player:sprite():toggle(true)
-			else
-				player:sprite():toggle(false)
-				player:sprite():reset(3)
-			end
-		end
-		
-		check = player:isColliding(player.x-1,false)
-		check2 = player:isColliding(player.x-1,player.y-1)
-		
-		if not check then
-			player.x = player.x-1
-			player:sprite():toggle(true)
-		else
-			if not check2 then
-				player.x = player.x - 1
-				player.y = player.y - 1
-				player:sprite():toggle(true)
-			else
-				player:sprite():toggle(false)
-				player:sprite():reset(3)
-			end
-		end
-		
-    end
-
-    if love.keyboard.isDown('right') then
-		if not (player.facing == 'right') then
-			player.facing = 'right' 
-		end
-	
-	
-		check = player:isColliding(player.x+mathDelta,false)
-		check2 = player:isColliding(player.x+mathDelta,player.y-1)
-
-		if not check then
-			player.x = player.x + mathDelta
-			player:sprite():toggle(true)
-		else
-			if not check2 then
-				player.x = player.x + mathDelta
-				player.y = player.y - 1
-				player:sprite():toggle(true)
-			else
-				player:sprite():toggle(false)
-				player:sprite():reset(3)
-			end
-		end
-		
-		check = player:isColliding(player.x+1,false)
-		check2 = player:isColliding(player.x+1,player.y-1)
-		
-		if not check then
-			player.x = player.x+1
-			player:sprite():toggle(true)
-		else
-			if not check2 then
-				player.x = player.x + 1
-				player.y = player.y - 1
-				player:sprite():toggle(true)
-			else
-				player:sprite():toggle(false)
-				player:sprite():reset(3)
-			end
-		end
-		
-   end
-
-    if love.keyboard.isDown('up') and player.falling == false then
-		player.falling = true
-		player.isJumping = 65
-		player:sprite():toggle(false)
-    end
-
-    if love.keyboard.isDown('down') then
-		--this is really just a place holder; I'll probably never add anything here.
-    end
-	
-	if not love.keyboard.isDown('right') and not love.keyboard.isDown( 'left') then
-		player:sprite():toggle(false)
-		player:sprite():reset(3)
-	end
-	
-	
-end
-
-function player:draw()
-	 player:sprite():draw(player.x, player.y, 0,1,1,0,0)
-	 --love.graphics.draw(bound[player.facing],player.x, player.y, 0,1,1,0,0)
-end
-
-
-
-function player:sprite()
-	return player[player.facing]
 end
 
 
