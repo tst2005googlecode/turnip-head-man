@@ -2,8 +2,11 @@
 images = 
 {
 	coin = love.graphics.newImage('img/items/coinBlock/1.png'),
-	playerColMap = love.graphics.newImage('img/player/collision.png'),
+	colImage = love.graphics.newImage('img/player/right/colMap.gif'),
+}
 
-
-
+playerColMap = 
+{
+	['right'] = collision:newCollisionMap('img/player/right/colMap.gif'),
+	['left'] = collision:newCollisionMap('img/player/left/colMap.gif'),
 }
