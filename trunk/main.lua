@@ -12,7 +12,11 @@
 playerFile = love.filesystem.load('inc/player.lua')
 gameFile = love.filesystem.load('inc/game.lua')
 itemsFile = love.filesystem.load('inc/items.lua')
+--hudFile = love.filesystem.load('inc/hud.lua')
+hudFile = love.filesystem.load('inc/hud.lua')
 
+
+time = os.time()
 function love.load()
     font = love.graphics.newFont( 'fonts/segoesc.ttf',16 )
     love.graphics.setFont( font )
@@ -26,6 +30,16 @@ function love.update(delta)
 	dt = delta
 	capFPS(delta, 29)
 	keyboard.last = keyboard.isDown()
+	
+	
+	--[[ for e,a,b,c in love.event.poll() do
+		if e == "q" then
+			love.event.push('q') -- quit the game
+		elseif e == "f" then
+			if not a and game.state == 'running' then game.state = 'paused' else game.state = 'running'  end
+		end
+	end ]]
+	
 end
 
 function love.draw()
@@ -42,19 +56,19 @@ end
 
 function gameDebug.toggle()
 	gameDebug.active = not gameDebug.active
-end
+end	
 
 function love.keypressed(key, u)
    --Debug
    if key == "rctrl" then --set to whatever key you want to use
       gameDebug.toggle()
-	  reloadGame('newGame')
+	  reloadGame('newGame', 1, 1)
    end
 end
 
 function love.mousepressed( x, y, key )
 	if key=='l' then
-		if item then item:add('coin', x,y) end
+		if item and player.style >= predefinedItems.coin.cost then item:add('coin', x,y) player.style = player.style - predefinedItems.coin.cost end
 	end
 end
 function capFPS(delta, max)
@@ -64,28 +78,34 @@ function capFPS(delta, max)
 	end 
 end
 
-function reloadGame(state)
+function reloadGame(state, world, stage)
 
 love.graphics.rectangle('fill',0,0,love.graphics.getWidth(), love.graphics.getWidth())	
 	player = nil
-	if not playerFile() then
+	if playerFile() then
+		if world then player.world = world end
+		if stage then player.stage = stage end
 		advPrint('Loaded: Player',100,100,{0,0,0} )
-		game = nil
-		if not gameFile() then
-			advPrint('Loaded: Game',100,125,{0,0,0} )
-			items = nil
-			item = nil
-			if  not itemsFile() then 
-				advPrint('Loaded: Items',100,150,{0,0,0} )
-			end
+	end	
+		
+	items = nil
+	item = nil
+	if  not itemsFile() then 
+		advPrint('Loaded: Items',100,125,{0,0,0} )
+	end	
+	
+	hud = nil
+	if  not hudFile() then 
+		advPrint('Loaded: HUD',100,150,{0,0,0} )
+	end	
+	
+	game = nil
+	if not gameFile() then
+		advPrint('Loaded: Game',100,175,{0,0,0} )
 		end
-	end
-	if game then  game.state = state end
 
-
-
-
-
+	if state and game then game.state = state	end
+		time = os.time()
 end
 
 

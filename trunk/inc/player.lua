@@ -14,7 +14,9 @@ player = {
 	stage = 1,
 	colMap = playerColMap.left,
 	image = images.colImage,
-	coins = 0,
+	score = 21805,
+	style = 0,
+	maxStyle = 200,
 	isPlayer = true,
 	maxPosition = 300,
 }
@@ -47,10 +49,6 @@ function player:jumping()
 		player.isJumping = true
 		player.isJumping = 0
 	end
-end
-
-function player:die()
-	error('nawwww....')
 end
 
 function player:update(dt)
