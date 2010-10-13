@@ -3,7 +3,7 @@
 
 
 --local bound = {right = love.graphics.newImage('img/player/right/walkingBounding.png'), left = love.graphics.newImage('img/player/left/walkingBounding.png')}
-game = {state = 'newGame', paralaxX = 0}
+game = {state = 'newGame', maxTime = 60, }
 
 backgrounds = {}
 
@@ -18,16 +18,24 @@ function game:run() --calls the game state
 	game[game.state]()
 end
 
-function game:running() --is run when the game is `running`
-	player:update()
-	item:update()
-	game:gravity(player)
-	for i,v in ipairs(items) do
-		game:gravity(v)
-	end
-	game:backgrounds()
-	--debugVal = 'X:'..mouse.X()..' - Y:'..mouse.Y()
+function game:running(paused) --is run when the game is `running`
+	--if not paused then
+		game.timer = game.maxTime - (os.time()-time)	
+		player:update()
+		item:update()
+		game:gravity(player)
+		for i,v in ipairs(items) do
+			game:gravity(v)
+		end
+		if player.style > player.maxStyle then player.style = player.maxStyle end
+		if game.timer < 1 then game.state = 'playerDeath' game.timer = 0 end
+--	end 
 	
+	--there is a bug in the timer where even when paused it will count down, I'll fix this a little later
+	
+	
+	hud:draw()
+	game:backgrounds()
 end
 
 function game:backgrounds()
@@ -65,7 +73,7 @@ function game:loadGame() --called when you start LOAD a game
 end
 
 function game:paused()
-	
+	game:running(true)
 end
 
 function game:buildMap()
@@ -164,6 +172,12 @@ function game.determineSpeed(speed)
 	return math.ceil(math.round((speed * dt),0))
 end
 
+function game:playerDeath()
+	error('Times Up!!!!!')
+end
+
+
+
 
 
 function paralaxingBG()
@@ -192,7 +206,6 @@ function paralaxingBG()
 		
 	end
 
-debugVal = player.x
 
 end
 

@@ -1,7 +1,7 @@
 item = {}
 items = {}
 predefinedItems = {
-	coin = {colMap = collision:newCollisionMap('img/items/coinBlock/1.png'), onHit = 'addCoin', image = images.coin}
+	coin = {colMap = collision:newCollisionMap('img/items/coinBlock/1.png'), onHit = 'addCoin', image = images.coin, cost = 10}
 }
 
 
