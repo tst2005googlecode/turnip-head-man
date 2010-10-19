@@ -15,31 +15,44 @@ backgrounds = {}
 ---------------------------------------------------------------------------------------------------------
 
 function game:run() --calls the game state 
+	if game.state == 'running' then 
+		if cam then
+			cam:draw(function() if game then game:draw() end end)
+		end
+	end
 	game[game.state]()
 end
 
 function game:running(paused) --is run when the game is `running`
 	--if not paused then
 		game.timer = game.maxTime - (os.time()-time)	
-		player:update()
-		item:update()
 		game:gravity(player)
 		for i,v in ipairs(items) do
 			game:gravity(v)
 		end
 		if player.style > player.maxStyle then player.style = player.maxStyle end
 		if game.timer < 1 then game.state = 'playerDeath' game.timer = 0 end
+		
+		cam:setPos(vector( player.getX(),(love.graphics.getHeight()/2)))
+		
 --	end 
 	
 	--there is a bug in the timer where even when paused it will count down, I'll fix this a little later
 	
 	
 	hud:draw()
+
+end
+
+
+function game:draw()
+		player:update()
+		item:update()
 	game:backgrounds()
 end
 
 function game:backgrounds()
-	paralaxingBG()
+	--paralaxingBG()
 	love.graphics.draw(backgrounds[2].image,backgrounds[2].x ,0)
 	player:draw()
 	
@@ -65,6 +78,7 @@ function game:newGame() --called when you start a NEW game
 	player.right =  newImageAnimation('img/player/right/', 0.08, 9)
 	game:buildMap()
 	game.state = 'running'
+	cam = Camera(vector(player.x, (love.graphics.getWidth()/2)))
 	--int = game:buildItemsFromMap('img/maps/1/1/3.png', 'img/items/coinBlock/1.png')
 end
 
@@ -156,7 +170,8 @@ end
 function game:findGround(object)
 local y = 2
 local xVal = 2
-if object.isPlayer then xVal = player.getX() end
+local x = 1
+if object.isPlayer then xVal = player.x end
 	for x = 1, x+1 do
 		if not player:isColliding(object.x,(object.y+1),object.colMap) then
 			object.y = object.y+1
@@ -193,11 +208,11 @@ function paralaxingBG()
 	
 	for i,v in pairs(backgrounds) do
 		if i == 2 then --bushes
-			v.x = math.round(0 - (x*0.95))*-1
+			--v.x = math.round(0 - (x*0.95))*-1
 		elseif i == 1 then --clouds
-			v.x = 0 + math.round(0 - (x*0.09))*-1
+			--v.x = 0 + math.round(0 - (x*0.09))*-1
 		else --interactables
-			v.x = x
+			
 		end
 	end
 	
