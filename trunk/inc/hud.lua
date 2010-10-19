@@ -10,7 +10,7 @@ function hud:style()
 	local barWidth = 200
 	local barVal = player.style
 	local barHeight = 25
-	local barX = (love.graphics.getWidth() - barWidth) - 10
+	local barX = ((love.graphics.getWidth() - barWidth) - 10)
 	local barY = 9
 	
 	r,g,b,a = love.graphics.getColor()

@@ -15,10 +15,10 @@ player = {
 	colMap = playerColMap.left,
 	image = images.colImage,
 	score = 21805,
-	style = 0,
+	style = 100,
 	maxStyle = 200,
 	isPlayer = true,
-	maxPosition = 300,
+	maxPosition = love.graphics.getWidth()/2,
 }
 
 
@@ -27,7 +27,7 @@ function player:isColliding(xVal, yVal)
 	temp.colMap = player.colMap
 	temp.image = player.image
 
-	if not xVal then temp.x = player.getX() else temp.x = xVal  end
+	if not xVal then temp.x = player.x else temp.x = xVal  end
 	if not yVal then temp.y = player.y else temp.y = yVal end
 	
 	for i,v in pairs(items) do
@@ -72,8 +72,8 @@ function player:walking()
 			player.facing = 'left' 
 		end
 		
-		check = player:isColliding(player.getX()-mathDelta-1,false)
-		check2 = player:isColliding(player.getX()-mathDelta-1,player.y-2)
+		check = player:isColliding(player.x-mathDelta-1,false)
+		check2 = player:isColliding(player.x-mathDelta-1,player.y-2)
 
 		if not check then
 			player.x = player.x - mathDelta
@@ -89,8 +89,8 @@ function player:walking()
 			end
 		end
 		
-		check = player:isColliding(player.getX()-2,false)
-		check2 = player:isColliding(player.getX()-2,player.y-2)
+		check = player:isColliding(player.x-2,false)
+		check2 = player:isColliding(player.x-2,player.y-2)
 		
 		if not check then
 			player.x = player.x-1
@@ -114,8 +114,8 @@ function player:walking()
 		end
 	
 	
-		check = player:isColliding(player.getX()+mathDelta+1,false)
-		check2 = player:isColliding(player.getX()+mathDelta+1,player.y-1)
+		check = player:isColliding(player.x+mathDelta+1,false)
+		check2 = player:isColliding(player.x+mathDelta+1,player.y-1)
 
 		if not check then
 			player.x = player.x + mathDelta
@@ -131,8 +131,8 @@ function player:walking()
 			end
 		end
 		
-		check = player:isColliding(player.getX()+2,false)
-		check2 = player:isColliding(player.getX()+2,player.y-1)
+		check = player:isColliding(player.x+2,false)
+		check2 = player:isColliding(player.x+2,player.y-1)
 		
 		if not check then
 			player.x = player.x+1
@@ -169,19 +169,19 @@ function player:walking()
 end
 
 function player:draw()
-	local x = player.getX()
-
-	player:sprite():draw(x, player.y, 0,1,1,0,0)
+	player:sprite():draw(player.x, player.y, 0,1,1,0,0)
 	--love.graphics.draw(bound[player.facing],player.x, player.y, 0,1,1,0,0)
 end
 
 function player.getX()
-	local xVal
-	if doParalax() then xVal = player.maxPosition else xVal = player.x end
-	if (math.abs(backgrounds[4].x)+1)  > (backgrounds[4].image:getWidth() - love.graphics.getWidth()) then
-		xVal = player.x + backgrounds[4].x
+	local x = player.x
+		
+	if x >= math.abs(love.graphics.getWidth()-backgrounds[4].image:getWidth()) +love.graphics.getWidth()/2  then
+		x = backgrounds[4].image:getWidth()-(love.graphics.getWidth()/2)
 	end
-	return xVal
+		
+	
+	return x
 end
 
 function player:sprite()

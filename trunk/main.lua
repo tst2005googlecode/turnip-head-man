@@ -8,11 +8,12 @@
 	require 'inc/supportFunctions'
 	require 'inc/tablePersistence'
 	require 'inc/input'
+	require 'inc/vector'
+	require 'inc/camera'
 
 playerFile = love.filesystem.load('inc/player.lua')
 gameFile = love.filesystem.load('inc/game.lua')
 itemsFile = love.filesystem.load('inc/items.lua')
---hudFile = love.filesystem.load('inc/hud.lua')
 hudFile = love.filesystem.load('inc/hud.lua')
 
 
@@ -68,7 +69,10 @@ end
 
 function love.mousepressed( x, y, key )
 	if key=='l' then
-		if item and player.style >= predefinedItems.coin.cost then item:add('coin', x,y) player.style = player.style - predefinedItems.coin.cost end
+		if cam then 
+			local camX,camY = cam:mousepos():unpack()
+			if item and player.style >= predefinedItems.coin.cost then item:add('coin', camX,camY) player.style = player.style - predefinedItems.coin.cost end
+		end
 	end
 end
 function capFPS(delta, max)
@@ -81,6 +85,7 @@ end
 function reloadGame(state, world, stage)
 
 love.graphics.rectangle('fill',0,0,love.graphics.getWidth(), love.graphics.getWidth())	
+	cam = nil -- resets the camera
 	player = nil
 	if playerFile() then
 		if world then player.world = world end
